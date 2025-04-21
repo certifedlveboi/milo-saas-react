@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import { motion } from "framer-motion";
@@ -10,10 +10,17 @@ import { v4 as uuidv4 } from 'uuid';
 
 const DayContent = () => {
   const [date, setDate] = useState(new Date());
-  const [notes, setNotes] = useState([]);
+  const [notes, setNotes] = useState(() => {
+    const storedNotes = localStorage.getItem('notes');
+    return storedNotes ? JSON.parse(storedNotes) : [];
+  });
   const [reminders, setReminders] = useState([]);
   const [habits, setHabits] = useState([]);
   const { toast } = useToast();
+
+  useEffect(() => {
+    localStorage.setItem('notes', JSON.stringify(notes));
+  }, [notes]);
 
   const handleAddNote = (newNote) => {
     setNotes([...notes, { ...newNote, id: uuidv4() }]);
