@@ -20,6 +20,7 @@ function App() {
   const [isLoading, setIsLoading] = useState(true); // Start loading until auth state is determined
   const { toast } = useToast();
   const [user, setUser] = useState(null);
+  const [genkitResponse, setGenkitResponse] = useState(""); // Keep state for potential future use
 
   useEffect(() => {
     // Listen for authentication state changes
@@ -29,6 +30,25 @@ function App() {
     });
     return () => unsubscribe(); // Cleanup subscription on unmount
   }, []);
+
+  // Removed the fetch for helloGenkit as it was a test
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     if (!isLoading && user) {
+  //       try {
+  //         const response = await fetch(
+  //           `https://your-project-id.cloudfunctions.net/helloGenkit?name=${user.displayName || "Guest"}`
+  //         );
+  //         const text = await response.text();
+  //         setGenkitResponse(text);
+  //       } catch (error) {
+  //         console.error("Error calling Genkit function:", error);
+  //         setGenkitResponse("Error: Could not connect to Genkit");
+  //       }
+  //     }
+  //   };
+  //   fetchData();
+  // }, [isLoading, user]);
 
   const renderContent = () => {
     switch (activeSection) {
@@ -79,12 +99,15 @@ function App() {
                   activeSection={activeSection}
                   onSelectSection={setActiveSection}
                 />
+                {/* Removed max-w-6xl and mx-auto from className */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="max-w-6xl mx-auto"
+                  className=""
                 >
                   {renderContent()}
+                  {/* Removed genkit response display */}
+                  {/* <p>{genkitResponse}</p> */}
                 </motion.div>
                 <Toaster />
               </div>

@@ -11,6 +11,7 @@
   "dependencies": {
     "@emotion/is-prop-valid": "^1.2.1",
     "@firebasegen/default-connector": "file:dataconnect-generated/js/default-connector",
+    "@genkit-ai/googleai": "^1.6.2",
     "@radix-ui/react-alert-dialog": "^1.0.5",
     "@radix-ui/react-avatar": "^1.0.3",
     "@radix-ui/react-checkbox": "^1.0.4",
@@ -34,6 +35,7 @@
     "firebase-admin": "^13.2.0",
     "framer-motion": "^10.16.4",
     "gapi-script": "^1.2.0",
+    "genkit": "^1.6.2",
     "lucide-react": "^0.285.0",
     "nanoid": "^5.1.5",
     "react": "^18.2.0",
