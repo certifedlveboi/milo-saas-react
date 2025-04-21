@@ -1,20 +1,19 @@
-
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { 
-  Gauge, 
-  Clock, 
-  Wallet, 
-  Activity, 
-  Sparkles, 
-  Mail, 
+import {
+  Gauge,
+  Clock,
+  Wallet,
+  Activity,
+  Sparkles,
+  Mail,
   Users,
   Bell,
   Settings,
   LogOut,
   Palette,
-  Camera
+  Camera,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import StreakCounter from "./StreakCounter";
@@ -28,11 +27,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useToast } from "@/components/ui/use-toast";
+import { auth } from "../firebase";
+import { signOut } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
 
 const Navigation = ({ activeSection, onSelectSection }) => {
   const [notifications, setNotifications] = useState([]);
   const { toast } = useToast();
-  
+  const navigate = useNavigate();
+
   const menuItems = [
     { icon: Gauge, label: "Cockpit", id: "calendar" },
     { icon: Activity, label: "Habits", id: "habits" },
@@ -42,7 +45,6 @@ const Navigation = ({ activeSection, onSelectSection }) => {
     { icon: Users, label: "Teams", id: "teams" },
     { icon: Sparkles, label: "Motivation", id: "motivation" },
   ];
-
 
   const handleProfilePhotoUpdate = () => {
     toast({
@@ -63,6 +65,19 @@ const Navigation = ({ activeSection, onSelectSection }) => {
       title: "Coming Soon",
       description: "Settings configuration will be available soon!",
     });
+  };
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      navigate('/'); // Navigate back to the login page
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast({
+        title: "Error",
+        description: "Could not log out. Please try again.",
+      });
+    }
   };
 
   return (
@@ -99,13 +114,16 @@ const Navigation = ({ activeSection, onSelectSection }) => {
             })}
           </div>
         </div>
-        
+
         <div className="flex items-center gap-12">
           <StreakCounter />
-          
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-12 w-12 rounded-full hover:bg-white/10">
+              <Button
+                variant="ghost"
+                className="relative h-12 w-12 rounded-full hover:bg-white/10"
+              >
                 <Bell className="h-7 w-7 text-white" />
                 {notifications.length > 0 && (
                   <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-red-500 text-xs font-medium text-white flex items-center justify-center">
@@ -133,7 +151,10 @@ const Navigation = ({ activeSection, onSelectSection }) => {
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="relative h-10 w-10 rounded-full hover:bg-white/10">
+              <Button
+                variant="ghost"
+                className="relative h-10 w-10 rounded-full hover:bg-white/10"
+              >
                 <Avatar>
                   <AvatarImage src="https://github.com/shadcn.png" />
                   <AvatarFallback>CN</AvatarFallback>
@@ -156,7 +177,7 @@ const Navigation = ({ activeSection, onSelectSection }) => {
                 <span>Appearance</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={handleLogout}>
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Log out</span>
               </DropdownMenuItem>
