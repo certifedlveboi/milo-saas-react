@@ -1,52 +1,49 @@
-# # Example schema for simple movie review app
+\
+# Copyright 2024 Google LLC
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
-# # User table is keyed by Firebase Auth UID.
-# type User @table {
-#   # `@default(expr: "auth.uid")` sets it to Firebase Auth UID during insert and upsert.
-#   id: String! @default(expr: "auth.uid")
-#   username: String! @col(dataType: "varchar(50)")
-#   # The `user: User!` field in the Review table generates the following one-to-many query field.
-#   #  reviews_on_user: [Review!]!
-#   # The `Review` join table the following many-to-many query field.
-#   #  movies_via_Review: [Movie!]!
-# }
+# Defines the data structures (schema) for your application.
+# See https://firebase.google.com/docs/data-connect/reference/graphql/schema-language
 
-# # Movie is keyed by a randomly generated UUID.
-# type Movie @table {
-#   # If you do not pass a 'key' to `@table`, Data Connect automatically adds the following 'id' column.
-#   # Feel free to uncomment and customize it.
-#   #  id: UUID! @default(expr: "uuidV4()")
-#   title: String!
-#   imageUrl: String!
-#   genre: String
-# }
+# User type - often useful, even if primarily managed by Auth
+type User @authorization(public: true) {
+  # It's generally recommended to use the Firebase Auth UID as the ID.
+  # We won't store password hashes or sensitive auth info here.
+  id: String! @(db.map: "_id") # Map to Firestore's document ID
+  displayName: String
+  email: String
+  createdAt: Timestamp
+}
 
-# # MovieMetadata is a metadata attached to a Movie.
-# # Movie <-> MovieMetadata is a one-to-one relationship
-# type MovieMetadata @table {
-#   # @unique ensures each Movie can only one MovieMetadata.
-#   movie: Movie! @unique
-#   # The movie field adds the following foreign key field. Feel free to uncomment and customize it.
-#   #  movieId: UUID!
-#   rating: Float
-#   releaseYear: Int
-#   description: String
-# }
+type Note @authorization(filter: "userId == auth.token.sub") {
+  id: String! @(db.map: "_id") # Map to Firestore's document ID
+  userId: String! # ID of the user who owns this note
+  text: String!
+  completed: Boolean! @(db.default: false) # Default to not completed
+  priority: String @(db.default: "'normal'") # Example default
+  createdAt: Timestamp @(db.onWrite: now) # Set automatically on creation/update
+  # date field from DayContent.jsx seems more like a tag/filter?
+  # Let's keep it simple for now, can add later if needed.
+}
 
-# # Reviews is a join table between User and Movie.
-# # It has a composite primary keys `userUid` and `movieId`.
-# # A user can leave reviews for many movies. A movie can have reviews from many users.
-# # User  <-> Review is a one-to-many relationship
-# # Movie <-> Review is a one-to-many relationship
-# # Movie <-> User is a many-to-many relationship
-# type Review @table(name: "Reviews", key: ["movie", "user"]) {
-#   user: User!
-#   # The user field adds the following foreign key field. Feel free to uncomment and customize it.
-#   #  userUid: String!
-#   movie: Movie!
-#   # The movie field adds the following foreign key field. Feel free to uncomment and customize it.
-#   #  movieId: UUID!
-#   rating: Int
-#   reviewText: String
-#   reviewDate: Date! @default(expr: "request.time")
-# }
+type Reminder @authorization(filter: "userId == auth.token.sub") {
+  id: String! @(db.map: "_id") # Map to Firestore's document ID
+  userId: String! # ID of the user who owns this reminder
+  text: String!
+  completed: Boolean! @(db.default: false) # Default to not completed
+  dueDate: Timestamp # Optional due date
+  createdAt: Timestamp @(db.onWrite: now) # Set automatically on creation/update
+}
+
+# You can add more types here as needed, e.g., for Budget, Habits, etc.
